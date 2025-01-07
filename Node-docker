@@ -1,1 +1,37 @@
+# Use Node.js Alpine as the base image
+FROM node:alpine
+
+# Set environment variables
+ENV DOCKER_VERSION=23.0.6
+
+# Install Docker dependencies and Docker CLI
+RUN apk add --no-cache \
+    bash \
+    curl \
+    py3-pip \
+    openssl \
+    ca-certificates \
+    git \
+    && curl -fsSL https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_VERSION}.tgz | tar -xz -C /usr/local/bin --strip-components=1 \
+    && chmod +x /usr/local/bin/docker \
+    && apk del curl
+
+# Verify Docker installation
+RUN docker --version
+
+# Set the working directory in the container
+WORKDIR /usr/src/app
+
+# Copy package.json and install dependencies
+COPY package*.json ./
+RUN npm install
+
+# Copy the application code
+COPY . .
+
+# Expose the application port
+EXPOSE 3000
+
+# Start the application
+CMD ["npm", "start"]
 
